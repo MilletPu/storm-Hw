@@ -39,7 +39,7 @@ public class FirstTopo {
             cluster.submitTopology("firstTopo", conf, builder.createTopology());  
             Utils.sleep(50000);  
             cluster.killTopology("firstTopo");  
-            cluster.shutdown();  
+            cluster.shutdown();
         }  
     }  
 }

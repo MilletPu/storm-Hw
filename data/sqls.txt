@@ -1,0 +1,18 @@
+#selection
+SELECT name,age FROM user WHERE userID="001"
+
+#projection
+SELECT name,sex FROM user
+
+#join
+SELECT user.userID,score.courseID FROM user,score WHERE user.userID=score.userID
+
+#group by
+SELECT userID,AVG(score) FROM score GROUP BY userID
+
+#aggregation
+SELECT AVG(score) FROM score
+SELECT SUM(score) FROM score
+SELECT MIN(score) FROM score
+SELECT MAX(score) FROM score
+SELECT COUNT(score) FROM score

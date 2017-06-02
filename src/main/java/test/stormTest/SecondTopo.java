@@ -76,7 +76,7 @@ class Spout1 extends BaseRichSpout{
     // Spout发送到 toplogy 成功完成时调用ack  
     public void ack(Object msgId) {  
         System.out.println("Spout1: ack " + msgId);  
-    }  
+    }
     // Spout发送到toplogy失败时调用fail  
     public void fail(Object msgId) {  
         System.out.println("Spout1: fail" + msgId);  
@@ -115,12 +115,12 @@ class Spout2 extends BaseRichSpout{
 class Bolt1 extends BaseRichBolt{  
     private static final long serialVersionUID = 7593355203928566992L;  
     private OutputCollector collector;  
-    @Override  
+    @Override
     public void prepare(Map stormConf, TopologyContext context,  
             OutputCollector collector) {  
         this.collector = collector;  
     }
-    @Override  
+    @Override
     public void execute(Tuple input) {
     	if(input.getSourceComponent().equals("spout1")){
     		String from = (String)input.getValueByField("spout1_value1");// 获取 tuple=(...,value_name_i,...) 中的指定元素
