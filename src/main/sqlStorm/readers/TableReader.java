@@ -2,7 +2,6 @@ package readers;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,11 @@ public class TableReader {
     public static String [] columns = new String[10];
     public static String [][] data = new String[100][10];
     public TableReader(){}
-    public TableReader(String fileName){
+    public TableReader(String fileName){ read(fileName); }
+    public static void main(String args[]){
+        test();
+    }
+    public static void read(String fileName){
         File file = new File(fileName);
         BufferedReader reader = null;
         try {
@@ -41,9 +44,8 @@ public class TableReader {
                 }
             }
         }
-        //test();
     }
-    public static String[] getColumns(){ return columns; }
+    public static String[] getColumns() { return columns; }
     public static String[][] getData(){ return data; }
     public static void test(){
         String [] tmp = getColumns();

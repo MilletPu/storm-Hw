@@ -1,5 +1,4 @@
 package readers;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +10,6 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.FileNotFoundException;
 import java.util.regex.*;
-
 public class SQLReader {
     public static String fileName="./data/sql.txt";
     public static String SQLmodel = "null";
@@ -19,7 +17,8 @@ public class SQLReader {
     public static String []from;
     public static String []where;
     public static String []groupby;
-    public SQLReader(){
+    public SQLReader(){}
+    public static void read(){
         File file = new File(fileName);
         BufferedReader reader = null;
         try {
@@ -33,29 +32,29 @@ public class SQLReader {
             Matcher m = p.matcher(sql);
             if (m.find()){
                 String tmp = m.group(0).replace("SELECT","").replace("FROM","");
-                select = tmp.split(",");
+                select = tmp.replace(" ","").split(",");
             }else{ select = new String[0]; }
             ///////////////////// 更新from ///////////////////
-            p = Pattern.compile("(FROM[ ,.a-zA-Z0-9_]+)|(FROM[ ,.a-zA-Z0-9_]+WHERE)|(FROM[ ,.a-zA-Z0-9_]+GROUP BY)");
+            p = Pattern.compile("(FROM[ ,.a-zA-Z0-9_]+WHERE)|(FROM[ ,.a-zA-Z0-9_]+GROUP BY)|(FROM[ ,.a-zA-Z0-9_]+)");
             m = p.matcher(sql);
             if (m.find()){
                 String tmp = m.group(0).replace("FROM","").replace("WHERE","");
                 tmp = tmp.replace("GROUP BY","");
-                from = tmp.split(",");
+                from = tmp.replace(" ","").split(",");
             }else{ from = new String[0]; }
             ///////////////////// 更新where ///////////////////
-            p = Pattern.compile("(WHERE[ ,.a-zA-Z0-9_\"=]+)|(WHERE[ ,.a-zA-Z0-9_\"=]+GROUP BY)");
+            p = Pattern.compile("(WHERE[ ,.a-zA-Z0-9_\"=]+GROUP BY)|(WHERE[ ,.a-zA-Z0-9_\"=]+)");
             m = p.matcher(sql);
             if (m.find()){
                 String tmp = m.group(0).replace("WHERE","").replace("GROUP BY","");
-                where = tmp.split("and");
+                where = tmp.replace(" ","").split("and");
             }else{ where = new String[0]; }
             ///////////////////// 更新groupby ///////////////////
             p = Pattern.compile("GROUP BY[ ,.a-zA-Z0-9_]+");
             m = p.matcher(sql);
             if (m.find()){
                 String tmp = m.group(0).replace("GROUP BY","");
-                groupby = tmp.split(",");
+                groupby = tmp.replace(" ","").split(",");
             }else{ groupby = new String[0]; }
         } catch (IOException e) { e.printStackTrace();
         } finally {
@@ -67,6 +66,10 @@ public class SQLReader {
             }
         }
         //test();
+    }
+    public static void main(String args[]){
+        read();
+        test();
     }
     public static void test(){
         System.out.println(SQLmodel);

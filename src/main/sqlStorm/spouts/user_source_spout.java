@@ -9,7 +9,9 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import readers.TableReader;
 /**
@@ -18,47 +20,40 @@ import readers.TableReader;
 public class user_source_spout extends BaseRichSpout {
         private static final long serialVersionUID = -1215556162813479167L;
         private SpoutOutputCollector collector;
-        public int column_num = 0; // table.rows
-        public int index_num = 0;   // table.lins
-        String [] columns;
-        String [][] data;
+        public static TableReader table_reader = new TableReader("./data/user.csv");
         public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
             this.collector = collector; //Storm自动初始化
         }
-        public void nextTuple() {
+        // 获取数据格式
+        public void nextTuple(){
+            System.out.println("In function nextTuple from spout1");
             long timestamp = System.currentTimeMillis(); //时间戳
-            TableReader user_table = new TableReader( "./data/user.csv" );
-            columns = user_table.getColumns();
-            data = user_table.getData();
-            column_num = user_table.column_num;
-            index_num = user_table.index_num;
-            int idx = 0;
-            String []tuple = new String[3+2*column_num];
-            tuple[idx++] = "user";//表名
-            tuple[idx++] = String.valueOf(timestamp);//时间戳
-            tuple[idx++] = String.valueOf(column_num); //列的数量
-            //Tuple a = new Tuple(nextTuple());
-            for (int i =0;i<index_num;i++){ //发送每一行（列名，数值）
-                int tmp = idx;
-                for(int j =0;j<column_num;j++){
-                    tuple[tmp++] = columns[j];
-                    tuple[tmp++] = data[i][j];
+            table_reader.read("./data/user.csv");
+            for (int i =0;i<table_reader.index_num;i++){ //发送每一行（列名，数值）
+                Values tuple = new Values(); //长度为3+2*column_num
+                tuple.add("user");//表名
+                tuple.add( String.valueOf(timestamp) );//时间戳
+                tuple.add( String.valueOf(table_reader) ); //列的数量
+                for(int j =0;j<table_reader.column_num;j++){
+                    tuple.add(table_reader.getColumns()[j]);
+                    tuple.add(table_reader.getData()[i][j]);
                 }
-                collector.emit(new Values(tuple));
+                collector.emit(tuple);
             }
             Utils.sleep(500); //每隔0.1s想外发送tuple
-            System.out.println("In function nextTuple from spout1");
         }
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            String [] tuple_name = new String[3+2*column_num];
-            int idx = 0;
-            tuple_name[idx++] = "TableName";
-            tuple_name[idx++] = "timestamp";
-            tuple_name[idx++] = "column_num";
-            for(int i =0;i<column_num;i++){
-                tuple_name[idx++] = columns[i];
-                tuple_name[idx++] = "value_"+String.valueOf(i);
+            List<String> tuple_name = new ArrayList<String>();
+            tuple_name.add( "TableName" );
+            tuple_name.add( "timestamp" );
+            tuple_name.add( "column_num" );
+            for(int i =0;i<table_reader.column_num;i++) {
+                tuple_name.add(table_reader.getColumns()[i]);
+                tuple_name.add("value_" + String.valueOf(i));
             }
+            //for(int i=0; i < tuple_name.size(); i++){
+            //  System.out.println(tuple_name.get(i));
+            //}
             declarer.declare( new Fields(tuple_name) ); // tuple = (...,value_name_i,...) value1是名称
         }
         // Spout发送到 toplogy 成功完成时调用ack
