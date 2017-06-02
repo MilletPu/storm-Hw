@@ -33,14 +33,14 @@ public class user_source_spout extends BaseRichSpout {
                 Values tuple = new Values(); //长度为3+2*column_num
                 tuple.add("user");//表名
                 tuple.add( String.valueOf(timestamp) );//时间戳
-                tuple.add( String.valueOf(table_reader) ); //列的数量
+                tuple.add( String.valueOf(table_reader.column_num) ); //列的数量
                 for(int j =0;j<table_reader.column_num;j++){
                     tuple.add(table_reader.getColumns()[j]);
                     tuple.add(table_reader.getData()[i][j]);
                 }
                 collector.emit(tuple);
             }
-            Utils.sleep(500); //每隔0.1s想外发送tuple
+            Utils.sleep(3000); //每隔0.1s想外发送tuple
         }
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
             List<String> tuple_name = new ArrayList<String>();
