@@ -15,19 +15,19 @@ import java.util.List;
 import java.util.Map;
 import readers.TableReader;
 
-public class user_source_spout extends BaseRichSpout {
+public class course_source_spout extends BaseRichSpout {
     private static final long serialVersionUID = -1215556162813479167L;
     private SpoutOutputCollector collector;
-    public static String fileName = new String("./data/user.csv");
+    public static String fileName = new String("./data/course.csv");
     public static TableReader table_reader = new TableReader(fileName);
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) { this.collector = collector;}
     public void nextTuple(){
-        System.out.println("nextTuple user_source_spout");
+        System.out.println("nextTuple course_source_spout");
         long timestamp = System.currentTimeMillis(); //时间戳
         table_reader.read(fileName);
         for (int i =0;i<table_reader.index_num;i++){ //发送每一行（列名，数值）
             Values tuple = new Values(); //长度为3+2*column_num
-            tuple.add("user");//表名
+            tuple.add("course");//表名
             tuple.add( String.valueOf(timestamp) );//时间戳
             tuple.add( String.valueOf(table_reader.column_num) ); //列的数量
             for(int j =0;j<table_reader.column_num;j++){

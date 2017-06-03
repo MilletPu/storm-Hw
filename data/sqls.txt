@@ -1,16 +1,17 @@
-#selection
-SELECT name,age FROM user WHERE userID="001"
+# selection
+SELECT name,age FROM user WHERE userID="1"
+SELECT courseID,name FROM course WHERE name="EE"
 
-#projection
+# projection
 SELECT name,sex FROM user
 
-#join
+# join
 SELECT user.userID,score.courseID FROM user,score WHERE user.userID=score.userID
 
-#group by
+# group by
 SELECT userID,AVG(score) FROM score GROUP BY userID
 
-#aggregation
+# aggregation
 SELECT AVG(score) FROM score
 SELECT SUM(score) FROM score
 SELECT MIN(score) FROM score

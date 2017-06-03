@@ -14,7 +14,7 @@ import java.util.Map;
 
 import readers.SQLReader;
 
-public class query_bolt extends BaseRichBolt {
+public class groupby_bolt extends BaseRichBolt {
     private static final long serialVersionUID = 7593355203928566992L;
     private OutputCollector collector;
     public static SQLReader sqlreader = new SQLReader();

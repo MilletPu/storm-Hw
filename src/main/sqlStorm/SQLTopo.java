@@ -7,6 +7,8 @@ import backtype.storm.utils.Utils;
 
 import bolts.query_bolt;
 import bolts.select_out_bolt;
+import spouts.course_source_spout;
+import spouts.score_source_spout;
 import spouts.user_source_spout;
 
 public class SQLTopo {
@@ -16,8 +18,12 @@ public class SQLTopo {
         // 创建拓扑结构
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("spout1",new user_source_spout(), 2).setNumTasks(4);  // 4(并发度-task) 2个executor(线程)
-        builder.setBolt("bolt1", new query_bolt(), 3).shuffleGrouping("spout1");
+        builder.setSpout("spout2",new course_source_spout(), 2).setNumTasks(4);
+        builder.setSpout("spout3",new score_source_spout(), 2).setNumTasks(4);
+        // 处理select的bolts
+        builder.setBolt("bolt1", new query_bolt(), 3).shuffleGrouping("spout1").shuffleGrouping("spout2").shuffleGrouping("spout3");
         builder.setBolt("bolt2", new select_out_bolt(), 3).shuffleGrouping("bolt1");
+
         /****************************************************************************  */
         Config conf = new Config();
         conf.setDebug(false);

@@ -19,6 +19,7 @@ public class TableReader {
     public TableReader(){}
     public TableReader(String fileName){ read(fileName); }
     public static void main(String args[]){
+        read("./data/user.csv");
         test();
     }
     public static void read(String fileName){

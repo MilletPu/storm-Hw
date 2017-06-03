@@ -13,6 +13,5 @@ public class SELECTWriter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

@@ -1,2 +1,2 @@
 #selection
-SELECT name,age,sex FROM user WHERE age="15"
+SELECT name,age FROM user WHERE userID="1"
