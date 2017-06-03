@@ -31,7 +31,7 @@ public class SQLTopo {
             LocalCluster cluster = new LocalCluster();
             // 定义topology的名称为"firstTopo"
             cluster.submitTopology("testTopology", conf, builder.createTopology());
-            Utils.sleep(60000); // 本地模式 5s 后杀死该Topology
+            Utils.sleep(10000); // 本地模式 5s 后杀死该Topology
             cluster.killTopology("testTopology");
             cluster.shutdown();
         }
