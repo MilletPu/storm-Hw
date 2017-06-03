@@ -25,7 +25,6 @@ public class query_bolt extends BaseRichBolt {
     }
     @Override
     public void execute(Tuple input) {
-        sqlreader.read();
         //check(input);
         System.out.println("query_bolt execute");
         String tableName = (String)input.getValue(0);
@@ -46,24 +45,24 @@ public class query_bolt extends BaseRichBolt {
                     break;
                 }
             }
-            if(send == 1){
-                Values send_seq = new Values();
-                send_seq.add( (String)input.getValue(1));
-                for(int i =0;i<n;i++) {
-                    String column_name = (String) input.getValue(2 * i + 3);
-                    String value = (String) input.getValue(2 * i + 4);
-                    boolean bol = false;
-                    for(int j = 0;j<sqlreader.select.length;j++){
-                        bol = bol|(column_name.equals(sqlreader.select[j]));
-                    }
-                    if(bol){
-                        send_seq.add(column_name);
-                        send_seq.add(value);
-                    }
+        }
+        if(send == 1){
+            Values send_seq = new Values();
+            send_seq.add( (String)input.getValue(1));
+            for(int i =0;i<n;i++) {
+                String column_name = (String) input.getValue(2 * i + 3);
+                String value = (String) input.getValue(2 * i + 4);
+                boolean bol = false;
+                for(int j = 0;j<sqlreader.select.length;j++){
+                    bol = bol|(column_name.equals(sqlreader.select[j]));
                 }
-                collector.emit(send_seq);
-                collector.ack(input);
+                if(bol){
+                    send_seq.add(column_name);
+                    send_seq.add(value);
+                }
             }
+            collector.emit(send_seq);
+            collector.ack(input);
         }
     }
     @Override
