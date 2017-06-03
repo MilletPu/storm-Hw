@@ -8,10 +8,11 @@ import backtype.storm.tuple.Tuple;
 import writers.SELECTWriter;
 
 import java.util.Map;
-public class select_out_bolt extends BaseRichBolt {
+public class output_bolt extends BaseRichBolt {
     private static final long serialVersionUID = 4342676753918989102L;
     private OutputCollector collector;
     public static SELECTWriter writer = new SELECTWriter();
+    public String output_path = "./out/output.csv";
     public static String timestemp = "-1";
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -20,21 +21,21 @@ public class select_out_bolt extends BaseRichBolt {
     @Override
     public void execute(Tuple input) {
         check(input);
-        System.out.println("select_out_bolt execute");
+        System.out.println("output_bolt execute");
         // 不同时间戳时重新写入文件
         if(timestemp.equals((String)input.getValue(0))==false){
             String send_line = (String)input.getValue(1);
             for(int i =3;i<input.size();i++){
                 if(i%2==1) send_line += ","+(String)input.getValue(i);
             }
-            writer.write("./out/select_out.csv",send_line+"\n",false);
+            writer.write(output_path,send_line+"\n",false);
             timestemp = (String)input.getValue(0);
         }
         String send_line = (String)input.getValue(2);
         for(int i =4;i<input.size();i++){
             if(i%2==0) send_line += ","+(String)input.getValue(i);
         }
-        writer.write("./out/select_out.csv",send_line+"\n",true);
+        writer.write(output_path,send_line+"\n",true);
         collector.ack(input);
     }
     @Override

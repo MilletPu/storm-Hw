@@ -6,5 +6,6 @@ test\stormTest\Spout1.class
 test\stormTest\App.class
 test\stormTest\Bolt3.class
 test\stormTest\Bolt2.class
+test\stormTest\UnitTest.class
 test\stormTest\FirstTopo.class
 test\stormTest\Spout2.class

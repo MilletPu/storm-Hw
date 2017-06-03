@@ -20,7 +20,10 @@ public class course_source_spout extends BaseRichSpout {
     private SpoutOutputCollector collector;
     public static String fileName = new String("./data/course.csv");
     public static TableReader table_reader = new TableReader(fileName);
-    public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) { this.collector = collector;}
+    public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+        this.collector = collector;
+        table_reader.read(fileName);
+    }
     public void nextTuple(){
         System.out.println("nextTuple course_source_spout");
         long timestamp = System.currentTimeMillis(); //时间戳

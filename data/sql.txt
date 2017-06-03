@@ -1,2 +1,2 @@
 #selection
-SELECT userID,name,age FROM user WHERE age!="15"
+SELECT user.userID,score.courseID FROM user,score WHERE user.userID=score.userID
