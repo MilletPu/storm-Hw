@@ -1,0 +1,10 @@
+*.class
+*.jar
+
+/target
+.idea
+.settings
+.classpath
+.project
+stormTest.eml
+stormTest.iml

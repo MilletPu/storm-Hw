@@ -7,12 +7,11 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import readers.SQLReader;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import readers.SQLReader;
 
 public class query_bolt extends BaseRichBolt {
     private static final long serialVersionUID = 7593355203928566992L;
@@ -32,20 +31,103 @@ public class query_bolt extends BaseRichBolt {
         int n = Integer.valueOf( (String)input.getValue(2) );
         int send = 0;// 检验是否需要send
         if (sqlreader.from[0].equals(tableName)) { // sql语句操作user表
-            String[] where = sqlreader.where[0].split("="); //只考虑where中有一种限制
-            where[1] = where[1].replace("\"","");
-            for (int i = 0; i < n; i++) {
-                String column_name = (String) input.getValue(2 * i + 3);
-                String value = (String) input.getValue(2 * i + 4);
-                boolean b1 = where[0].equals(column_name);
-                boolean b2 = where[1].equals(value);
-                if (b1 & b2) {
-                    //System.out.println(column_name+"*"+where[0]+"*"+value+"*"+where[1]);
-                    send = 1;
-                    break;
+            // =
+            if(sqlreader.where[0].contains("=") && !sqlreader.where[0].contains(">")
+                    && !sqlreader.where[0].contains("<") && !sqlreader.where[0].contains("!")) {
+                String[] where = sqlreader.where[0].split("="); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    boolean b2 = where[1].equals(value);
+                    if (b1 & b2) {
+                        send = 1;
+                        break;
+                    }
+                }
+            }
+
+            // >
+            if(sqlreader.where[0].contains(">") && !sqlreader.where[0].contains("=")) {
+                String[] where = sqlreader.where[0].split(">"); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    int b2 = value.compareTo(where[1]);
+                    if (b1 & b2>0) {
+                        send = 1;
+                        break;
+                    }
+                }
+            }
+
+            // >=
+            if(sqlreader.where[0].contains(">=")) {
+                String[] where = sqlreader.where[0].split(">="); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    int b2 = value.compareTo(where[1]);
+                    if (b1 & b2>=0) {
+                        send = 1;
+                        break;
+                    }
+                }
+            }
+
+            // <
+            if(sqlreader.where[0].contains("<") && !sqlreader.where[0].contains("=")) {
+                String[] where = sqlreader.where[0].split("<"); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    int b2 = value.compareTo(where[1]);
+                    if (b1 & b2<0) {
+                        send = 1;
+                        break;
+                    }
+                }
+            }
+
+            // <=
+            if(sqlreader.where[0].contains("<=")) {
+                String[] where = sqlreader.where[0].split("<="); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    int b2 = value.compareTo(where[1]);
+                    if (b1 & b2<=0) {
+                        send = 1;
+                        break;
+                    }
+                }
+            }
+
+            if(sqlreader.where[0].contains("!=")) {
+                String[] where = sqlreader.where[0].split("!="); //只考虑where中有一种限制
+                where[1] = where[1].replace("\"", "");
+                for (int i = 0; i < n; i++) {
+                    String column_name = (String) input.getValue(2 * i + 3);
+                    String value = (String) input.getValue(2 * i + 4);
+                    boolean b1 = where[0].equals(column_name);
+                    int b2 = value.compareTo(where[1]);
+                    if (b1 & b2!=0) {
+                        send = 1;
+                        break;
+                    }
                 }
             }
         }
+
         if(send == 1){
             Values send_seq = new Values();
             send_seq.add( (String)input.getValue(1));
