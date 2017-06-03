@@ -1,15 +1,10 @@
 package readers;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.FileNotFoundException;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 public class SQLReader {
     public static String fileName="./data/sql.txt";
     public static String SQLmodel = "null";
@@ -43,7 +38,7 @@ public class SQLReader {
                 from = tmp.replace(" ","").split(",");
             }else{ from = new String[0]; }
             ///////////////////// 更新where ///////////////////
-            p = Pattern.compile("(WHERE[ ,.a-zA-Z0-9_\"=]+GROUP BY)|(WHERE[ ,.a-zA-Z0-9_\"=]+)");
+            p = Pattern.compile("(WHERE[ ,.a-zA-Z0-9_><!\"=]+GROUP BY)|(WHERE[ ,.a-zA-Z0-9_><!\"=]+)");
             m = p.matcher(sql);
             if (m.find()){
                 String tmp = m.group(0).replace("WHERE","").replace("GROUP BY","");
