@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import readers.SQLReader;
 import writers.SELECTWriter;
 
 import java.io.Serializable;
@@ -14,7 +15,8 @@ public class output_bolt extends BaseRichBolt implements Serializable {
     private OutputCollector collector;
     public static SELECTWriter writer = new SELECTWriter();
     public String output_path = "./out/output.csv";
-    public String timestemp = "-1";
+    public SQLReader sqlreader = new SQLReader();
+    public static String timestemp = String.valueOf(System.currentTimeMillis());
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
@@ -22,20 +24,14 @@ public class output_bolt extends BaseRichBolt implements Serializable {
     @Override
     public void execute(Tuple input) {
         check(input);
-        System.out.println("output_bolt execute");
-        // 不同时间戳时重新写入文件
-        if(timestemp.equals((String)input.getValue(0))==false){
+        System.out.println("output_bolt execute,timestamp="+timestemp);
+        System.out.println("out = "+(String)input.getValue(2));
+        if(timestemp.equals((String)input.getValue(0))==false){ // 不同时间戳时,清空文件+写表头
             String send_line = (String)input.getValue(1);
-            for(int i =3;i<input.size();i++){
-                if(i%2==1) send_line += ","+(String)input.getValue(i);
-            }
             writer.write(output_path,send_line+"\n",false);
             timestemp = (String)input.getValue(0);
         }
         String send_line = (String)input.getValue(2);
-        for(int i =4;i<input.size();i++){
-            if(i%2==0) send_line += ","+(String)input.getValue(i);
-        }
         writer.write(output_path,send_line+"\n",true);
         collector.ack(input);
     }

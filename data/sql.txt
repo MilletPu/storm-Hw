@@ -1,2 +1,1 @@
-#selection
-SELECT user.userID,score.courseID FROM user,score WHERE user.userID=score.userID
+SELECT name,age FROM user WHERE userID="100000000000000"

@@ -23,9 +23,9 @@ public class join_bolt extends BaseRichBolt implements Serializable {
     public  SQLReader sqlreader = new SQLReader();
     public Table t1 = new Table(); // 只支持2个表合并
     public Table t2 = new Table();
-    public String t1_timestemp = "-1";
-    public String t2_timestemp = "-1";
-    public String send_timestemp = "-1";
+    public String t1_timestamp = "-1";
+    public String t2_timestamp = "-1";
+    public String send_timestamp = String.valueOf(System.currentTimeMillis());
     public int flow1_state = 0;
     public int flow2_state = 0;
     @Override
@@ -34,61 +34,52 @@ public class join_bolt extends BaseRichBolt implements Serializable {
     }
     @Override
     public void execute(Tuple input) {
-        sqlreader.read();
         // check(input);
+        if(send_timestamp.equals((String)input.getValue(1))==false)  sqlreader.read();
         System.out.println("join_bolt execute");
         String tableName = (String)input.getValue(0);
         String timestamp = (String)input.getValue(1);
-        int n = Integer.valueOf( (String)input.getValue(2) );
-        int send = 0;// 检验是否需要send
-        if ( sqlreader.from.length != 2){
-            collector.ack(input);
-            return; //判断是否是join查询
-        }
+        if ( sqlreader.from.length != 2 ) return; // 判断是否是join查询
         boolean is_t1 = sqlreader.from[0].equals((String)input.getValue(0));
         boolean is_t2 = sqlreader.from[1].equals((String)input.getValue(0));
         System.out.println("Table name = "+(String)input.getValue(0));
-        if((is_t1==false)&(is_t2==false)) {
-            collector.ack(input);
-            return;
-        }
+        if((is_t1==false)&(is_t2==false)) return; //非目标表
+        String [] columns = String.valueOf(input.getValue(2)).split(",");
+        String [] values = String.valueOf(input.getValue(3)).split(",");
         if( is_t1 ){ // 如果流属于表1
-            boolean t1_tt_chg = (t1_timestemp.equals((String)input.getValue(1))==false);
-            if( t1_tt_chg ) t1_timestemp = (String)input.getValue(1);
+            boolean t1_tt_chg = (t1_timestamp.equals((String)input.getValue(1))==false);
+            if( t1_tt_chg ) t1_timestamp = (String)input.getValue(1);
             if((flow1_state==1) & t1_tt_chg ) flow1_state = 2; // 关表
             if((flow1_state==0) & t1_tt_chg ) flow1_state = 1; // 开表
             if(flow1_state==1) {
-                List<String> columns = new ArrayList<String>();
-                List<String> row = new ArrayList<String>();
-                for(int i = 0;i<Integer.valueOf((String)input.getValue(2));i++){
-                    columns.add((String)input.getValue(3+i*2));
-                    row.add((String)input.getValue(4+i*2));
+                List<String> tb_columns = new ArrayList<String>();
+                List<String> tb_row = new ArrayList<String>();
+                for(int i = 0;i<columns.length;i++){
+                    tb_columns.add(columns[i]);
+                    tb_row.add(values[i]);
                 }
                 t1.tableName = (String)input.getValue(0);
-                t1.setColumn(columns);
-                t1.addRow(row);
+                t1.setColumn(tb_columns);
+                t1.addRow(tb_row);
             }
         }
         if( is_t2 ){ // 如果流属于表2
-            boolean t2_tt_chg = (t2_timestemp.equals((String)input.getValue(1))==false);
-            if( t2_tt_chg ) t2_timestemp = (String)input.getValue(1);
-            if((flow2_state==1) & t2_tt_chg ) flow2_state = 2;
-            if((flow2_state==0) & t2_tt_chg ) flow2_state = 1;
+            boolean t2_tt_chg = (t2_timestamp.equals((String)input.getValue(1))==false);
+            if( t2_tt_chg ) t2_timestamp = (String)input.getValue(1);
+            if((flow2_state==1) & t2_tt_chg ) flow2_state = 2; // 关表
+            if((flow2_state==0) & t2_tt_chg ) flow2_state = 1; // 开表
             if(flow2_state==1) {
-                List<String> columns = new ArrayList<String>();
-                List<String> row = new ArrayList<String>();
-                for(int i = 0;i<Integer.valueOf((String)input.getValue(2));i++){
-                    columns.add((String)input.getValue(3+i*2));
-                    row.add((String)input.getValue(4+i*2));
+                List<String> tb_columns = new ArrayList<String>();
+                List<String> tb_row = new ArrayList<String>();
+                for(int i = 0;i<columns.length;i++){
+                    tb_columns.add(columns[i]);
+                    tb_row.add(values[i]);
                 }
                 t2.tableName = (String)input.getValue(0);
-                t2.setColumn(columns);
-                t2.addRow(row);
+                t2.setColumn(tb_columns);
+                t2.addRow(tb_row);
             }
         }
-        System.out.println("======================"+" "+String.valueOf(flow1_state)+" "+ String.valueOf(flow2_state));
-        System.out.println("---------- 1 ----------"); t1.watchTable();
-        System.out.println("---------- 2 ----------"); t2.watchTable();
         if( (flow1_state==2) & (flow2_state==2) ) {
             String merge_on = sqlreader.where[0].split("=")[0].split("\\.")[1];
             String [] on = new String[1]; on[0] = merge_on;
@@ -96,7 +87,7 @@ public class join_bolt extends BaseRichBolt implements Serializable {
             t1.merge(t2,on);
             t1.slice(sqlreader.select);
             emits_Table(t1); collector.ack(input);
-            send_timestemp = String.valueOf(System.currentTimeMillis());
+            send_timestamp = String.valueOf(System.currentTimeMillis());
             t1 = new Table(t1.tableName); t2 = new Table(t2.tableName);
             flow1_state = 0; flow2_state = 0;
         }
@@ -108,20 +99,24 @@ public class join_bolt extends BaseRichBolt implements Serializable {
         System.out.println("===================" + String.valueOf(columns.size()));
         for(int i =0;i<t.rows.size();i++) {
             Values send_seq = new Values();
-            send_seq.add(send_timestemp);
-            for (int j = 0; j < columns.size(); j++) {
-                send_seq.add(columns.get(j));
-                send_seq.add(t.rows.get(i).get(j));
+            send_seq.add(send_timestamp);
+            String send_columns = columns.get(0); // 发送的第二维
+            String send_values = t.rows.get(i).get(0);  // 发送的第三维
+            for (int j = 1; j < columns.size(); j++) {
+                send_columns = send_columns+","+columns.get(j);
+                send_values = send_values+","+t.rows.get(i).get(j);
             }
+            send_seq.add(send_columns);
+            send_seq.add(send_values);
             collector.emit(send_seq);
         }
     }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        sqlreader.read();
-        int n = sqlreader.select.length;
         List<String> sendFields = new ArrayList<String>();
-        for (int i = 0;i<2*n+1;i++){ sendFields.add("field_"+String.valueOf(i)); }
+        sendFields.add("send_timestamp");
+        sendFields.add("columns");
+        sendFields.add("values");
         declarer.declare(new Fields(sendFields));
     }
     public static void check(Tuple input){

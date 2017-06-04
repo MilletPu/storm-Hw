@@ -8,6 +8,7 @@ import java.util.*;
 /**
  * Created by NoNo on 2017-6-3.
  */
+
 public class Table implements Serializable{
     public String tableName = "-1";
     public Map<String,Integer> column = new HashMap<String,Integer>();
@@ -91,6 +92,60 @@ public class Table implements Serializable{
         column_idx = ans_column_idx;
         rows = ans_rows;
     }
+    public Map<String,Map<String,List<String>>> groupby( String on ){
+        Map<String,Map<String,List<String>>> cache = new HashMap<String,Map<String,List<String>>>();
+        if(column.containsKey(on)==false){
+            System.out.println("table has no column "+on);
+            return cache;
+        }
+        for(int i =0;i<rows.size();i++){
+            int first_key_idx = column.get(on);
+            String first_key = rows.get(i).get(first_key_idx);
+            if( cache.containsKey(first_key) ){ // 如果含有first_key
+                Map<String,List<String>> bucket = cache.get(first_key);
+                for(int j =0;j<rows.get(i).size();j++) {
+                    if(j==first_key_idx) continue;
+                    String second_key = column_idx.get(j);
+                    if( bucket.containsKey(second_key) ){
+                        List<String> list = bucket.get(second_key);
+                        cache.get(first_key).get(second_key).add( rows.get(i).get(j) );
+                    }
+                    else{
+                        List<String> list = new ArrayList<String>();
+                        list.add(rows.get(i).get(j));
+                        cache.get(first_key).put(second_key,list);
+                    }
+                }
+
+            }
+            else{ // 如果不含有first_key
+                Map<String,List<String>> bucket = new HashMap<String,List<String>>();
+                for(int j =0;j<rows.get(i).size();j++) {
+                    if(j==first_key_idx) continue;
+                    String second_key = column_idx.get(j);
+                    List<String> list = new ArrayList<String>();
+                    list.add( rows.get(i).get(j) );
+                    bucket.put(second_key,list);
+                }
+                cache.put(first_key,bucket);
+            }
+        }
+        return cache;
+    }
+    public Map<String,List<String>> aggregation(){
+        Map<String,List<String>> cache = new HashMap<String,List<String>>();
+        for(String column_key:column.keySet()){
+            List<String> list = new ArrayList<String>();
+            cache.put(column_key,list);
+        }
+        for(int i = 0;i<rows.size();i++){
+            for(int j = 0;j<rows.get(i).size();j++){
+                String column_key = column_idx.get(j);
+                cache.get(column_key).add(rows.get(i).get(j));
+            }
+        }
+        return cache;
+    }
     public void watchTable(){
         List<String> co = getColumn();
         for(int i =0;i<co.size();i++){
@@ -123,9 +178,22 @@ public class Table implements Serializable{
 
         String [] on = new String[1];
         on[0] = "userID";
-        t1.merge(t2,on);
+        //t1.merge(t2,on);
         on[0]="score.score";
-        t1.slice(on);
+        //t1.slice(on);
         t1.watchTable();
+
+        Map<String,List<String>> cache = t1.aggregation();
+        for(String key:cache.keySet()){
+            System.out.println("key="+key);
+            for(int j =0;j<cache.get(key).size();j++){
+                System.out.print(cache.get(key).get(j)+" ");
+            }
+            System.out.println();
+        }
+
+
+
+
     }
 }

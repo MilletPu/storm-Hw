@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class SQLReader implements Serializable {
     public String fileName="./data/sql.txt";
-    public String SQLmodel = "null";
     public String []select;
     public String []from;
     public String []where;
@@ -16,7 +15,6 @@ public class SQLReader implements Serializable {
         try {
             reader = new BufferedReader(new FileReader(file));
             String tempString = null;
-            SQLmodel = reader.readLine().replace("#","");
             String sql = reader.readLine();
             reader.close();
             ///////////////////  更新select ///////////////////
@@ -64,7 +62,6 @@ public class SQLReader implements Serializable {
         //test();
     }
     public void test(){
-        System.out.println(SQLmodel);
         System.out.print("select:"); for (String s:select) System.out.print(s+" "); System.out.println();
         System.out.print("from:"); for (String s:from) System.out.print(s+" "); System.out.println();
         System.out.print("where:"); for (String s:where) System.out.print(s+" "); System.out.println();

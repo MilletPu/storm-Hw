@@ -1,15 +1,28 @@
+# 支持的SQL语句
+
 # selection
 SELECT name,age FROM user WHERE userID="1"
+SELECT name,age FROM user WHERE userID="100000000000000"
 SELECT courseID,name FROM course WHERE name="EE"
+SELECT courseID,name FROM course WHERE name!="EE"
+SELECT userID,courseID,score FROM score WHERE score="98"
+SELECT userID,courseID,score FROM score WHERE score>="50"
+SELECT userID,courseID,score FROM score WHERE score!="98"
+SELECT userID,courseID,score FROM score WHERE score<"78"
+SELECT userID,courseID,score FROM score WHERE score<="78"
 
 # projection
+SELECT name FROM user
 SELECT name,sex FROM user
+SELECT name,sex,userID FROM user
 
 # join
 SELECT user.userID,score.courseID FROM user,score WHERE user.userID=score.userID
+SELECT score.userID,course.name,score.score FROM course,score WHERE course.courseID=score.courseID
 
 # group by
 SELECT userID,AVG(score) FROM score GROUP BY userID
+SELECT userID,AVG(score) FROM score WHERE score<"78" GROUP BY userID
 
 # aggregation
 SELECT AVG(score) FROM score
@@ -17,3 +30,6 @@ SELECT SUM(score) FROM score
 SELECT MIN(score) FROM score
 SELECT MAX(score) FROM score
 SELECT COUNT(score) FROM score
+SELECT COUNT(score),AVG(score),MAX(score) FROM score WHERE score<"78"
+SELECT COUNT(score),AVG(score),MAX(score) FROM score WHERE score>="78"
+SELECT COUNT(score),AVG(score),MAX(score) FROM score WHERE score="98"
