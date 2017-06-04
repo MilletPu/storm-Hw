@@ -9,14 +9,15 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import readers.SQLReader;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class select_bolt extends BaseRichBolt {
+public class select_bolt extends BaseRichBolt implements Serializable {
     private static final long serialVersionUID = 7593355203928566992L;
     private OutputCollector collector;
-    public static SQLReader sqlreader = new SQLReader();
+    public SQLReader sqlreader = new SQLReader();
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
@@ -31,7 +32,10 @@ public class select_bolt extends BaseRichBolt {
         String timestamp = (String)input.getValue(1);
         int n = Integer.valueOf( (String)input.getValue(2) );
         int send = 0;// 检验是否需要send
-        if ( sqlreader.from.length >= 2)  return; // 非select操作
+        if ( sqlreader.from.length >= 2){
+            collector.ack(input);
+            return; // 非select操作
+        }
         if (sqlreader.from[0].equals(tableName)) { // 比如sql语句操作user表
             // =
             if(sqlreader.where[0].contains("=") && !sqlreader.where[0].contains(">")

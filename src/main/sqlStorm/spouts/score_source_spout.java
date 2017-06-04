@@ -9,20 +9,20 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import readers.TableReader;
 
-public class score_source_spout extends BaseRichSpout {
+public class score_source_spout extends BaseRichSpout implements Serializable {
     private static final long serialVersionUID = -1215556162813479167L;
     private SpoutOutputCollector collector;
-    public static String fileName = new String("./data/score.csv");
-    public static TableReader table_reader = new TableReader(fileName);
+    public String fileName = new String("./data/score.csv");
+    public TableReader table_reader = new TableReader(fileName);
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
-        table_reader.read(fileName);
     }
     public void nextTuple(){
         System.out.println("nextTuple score_source_spout");
@@ -39,10 +39,9 @@ public class score_source_spout extends BaseRichSpout {
             }
             collector.emit(tuple);
         }
-        Utils.sleep(3000); //每隔0.1s想外发送tuple
+        Utils.sleep(10000); //每隔0.1s想外发送tuple
     }
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        table_reader.read(fileName);
         List<String> tuple_name = new ArrayList<String>();
         tuple_name.add( "TableName" );
         tuple_name.add( "timestamp" );

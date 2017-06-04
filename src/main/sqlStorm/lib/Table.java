@@ -110,6 +110,8 @@ public class Table implements Serializable{
         t1.setColumn(c1);
         List<String> row1 = new ArrayList<String>(); row1.add("001"); row1.add("14"); t1.addRow(row1);
         List<String> row11 = new ArrayList<String>(); row11.add("001"); row11.add("28"); t1.addRow(row11);
+        row11 = new ArrayList<String>(); row11.add("001"); row11.add("28"); t1.addRow(row11);
+        row11 = new ArrayList<String>(); row11.add("001"); row11.add("28"); t1.addRow(row11);
         t1.watchTable();
 
         Table t2 = new Table("score");
@@ -122,7 +124,7 @@ public class Table implements Serializable{
         String [] on = new String[1];
         on[0] = "userID";
         t1.merge(t2,on);
-        on[0]="user.age";
+        on[0]="score.score";
         t1.slice(on);
         t1.watchTable();
     }

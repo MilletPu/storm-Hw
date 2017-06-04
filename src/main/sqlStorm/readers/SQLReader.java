@@ -1,19 +1,16 @@
 package readers;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-public class SQLReader {
-    public static String fileName="./data/sql.txt";
-    public static String SQLmodel = "null";
-    public static String []select;
-    public static String []from;
-    public static String []where;
-    public static String []groupby;
+public class SQLReader implements Serializable {
+    public String fileName="./data/sql.txt";
+    public String SQLmodel = "null";
+    public String []select;
+    public String []from;
+    public String []where;
+    public String []groupby;
     public SQLReader(){}
-    public static void read(){
+    public void read(){
         File file = new File(fileName);
         BufferedReader reader = null;
         try {
@@ -63,10 +60,10 @@ public class SQLReader {
         //test();
     }
     public static void main(String args[]){
-        read();
-        test();
+        //read();
+        //test();
     }
-    public static void test(){
+    public void test(){
         System.out.println(SQLmodel);
         System.out.print("select:"); for (String s:select) System.out.print(s+" "); System.out.println();
         System.out.print("from:"); for (String s:from) System.out.print(s+" "); System.out.println();

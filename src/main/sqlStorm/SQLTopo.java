@@ -22,10 +22,10 @@ public class SQLTopo {
         builder.setSpout("spout2",new course_source_spout(), 2).setNumTasks(4);
         builder.setSpout("spout3",new score_source_spout(), 2).setNumTasks(4);
         // 处理select的bolts
-        builder.setBolt("bolt1", new select_bolt(), 3).shuffleGrouping("spout1").shuffleGrouping("spout2").shuffleGrouping("spout3");
-        builder.setBolt("bolt2", new join_bolt(), 3).shuffleGrouping("spout1").shuffleGrouping("spout2").shuffleGrouping("spout3");
+        builder.setBolt("bolt1", new select_bolt(), 1).shuffleGrouping("spout1").shuffleGrouping("spout2").shuffleGrouping("spout3");
+        builder.setBolt("bolt2", new join_bolt(), 1).shuffleGrouping("spout1").shuffleGrouping("spout2").shuffleGrouping("spout3");
 
-        builder.setBolt("write_bolt", new output_bolt(), 3).shuffleGrouping("bolt1").shuffleGrouping("bolt2");
+        builder.setBolt("output_bolt", new output_bolt(), 3).shuffleGrouping("bolt1").shuffleGrouping("bolt2");
         /****************************************************************************  */
         Config conf = new Config();
         conf.setDebug(false);
@@ -39,7 +39,7 @@ public class SQLTopo {
             LocalCluster cluster = new LocalCluster();
             // 定义topology的名称为"firstTopo"
             cluster.submitTopology("testTopology", conf, builder.createTopology());
-            Utils.sleep(60000); // 本地模式 5s 后杀死该Topology
+            Utils.sleep(5000); // 本地模式 5s 后杀死该Topology
             cluster.killTopology("testTopology");
             cluster.shutdown();
         }

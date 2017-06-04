@@ -7,13 +7,14 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import writers.SELECTWriter;
 
+import java.io.Serializable;
 import java.util.Map;
-public class output_bolt extends BaseRichBolt {
+public class output_bolt extends BaseRichBolt implements Serializable {
     private static final long serialVersionUID = 4342676753918989102L;
     private OutputCollector collector;
     public static SELECTWriter writer = new SELECTWriter();
     public String output_path = "./out/output.csv";
-    public static String timestemp = "-1";
+    public String timestemp = "-1";
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;

@@ -1,28 +1,29 @@
 package readers;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.FileNotFoundException;
+import java.io.*;
 
-public class TableReader {
-    //public static String fileName="./data/user.csv";
-    public static int column_num = 0;
-    public static int index_num = 0;
-    public static String [] columns = new String[10];
-    public static String [][] data = new String[100][10];
+public class TableReader implements Serializable {
+    public String fileName="./data/user.csv";
+    public int column_num = 0;
+    public int index_num = 0;
+    public String [] columns = new String[10];
+    public String [][] data = new String[100][10];
     public TableReader(){}
-    public TableReader(String fileName){ read(fileName); }
-    public static void main(String args[]){
-        read("./data/user.csv");
-        test();
+    public TableReader(String name){
+        fileName = name;
+        read(fileName);
     }
-    public static void read(String fileName){
+    public void init(){
+        column_num = 0;
+        index_num = 0;
+        columns = new String[10];
+        data = new String[100][10];
+    }
+    public static void main(String args[]){
+        //read("./data/user.csv");
+        //test();
+    }
+    public void read(String fileName){
         File file = new File(fileName);
         BufferedReader reader = null;
         try {
@@ -46,9 +47,9 @@ public class TableReader {
             }
         }
     }
-    public static String[] getColumns() { return columns; }
-    public static String[][] getData(){ return data; }
-    public static void test(){
+    public String[] getColumns() { return columns; }
+    public String[][] getData(){ return data; }
+    public void test(){
         String [] tmp = getColumns();
         for (int i =0;i<column_num;i++ ){
             System.out.print(tmp[i] + " ");
